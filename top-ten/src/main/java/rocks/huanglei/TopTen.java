@@ -1,12 +1,9 @@
 package rocks.huanglei;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -18,6 +15,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import rocks.huanglei.util.Utils;
 
 @BenchmarkMode(Mode.AverageTime)
 @State(Scope.Thread)
@@ -38,22 +36,16 @@ public class TopTen {
         new Runner(opt).run();
     }
 
-    private static Stream<String> lines(String path) {
-        try {
-            return Files.lines(Paths.get(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Stream.empty();
-        }
-    }
-
     @Benchmark
     public void run() {
         System.out.println(Arrays.stream(files.split(" "))
-                                 .flatMap(TopTen::lines)
+                                 .flatMap(Utils::lines)
                                  .flatMap(line -> Arrays.stream(line.split("\\b")))
                                  .map(String::toLowerCase)
                                  .filter(s -> !s.isEmpty() && !s.equals(" "))
+                                 .map(Utils::hasher)
+                                 .filter(Optional::isPresent)
+                                 .map(Optional::get)
                                  .collect(Collectors.groupingBy(h -> h, Collectors.counting()))
                                  .entrySet().stream()
                                  .sorted(Map.Entry.comparingByValue((l1, l2) -> (int)(l2 - l1)))
