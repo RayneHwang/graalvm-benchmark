@@ -3,6 +3,7 @@ package rocks.huanglei;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,8 @@ import rocks.huanglei.util.Utils;
 @Fork(1)
 @State(Scope.Benchmark)
 public class TopTen {
-
     private List<String> words;
-
-    private String result;
-
-    public TopTen() {}
+    private String       result;
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -42,6 +39,23 @@ public class TopTen {
                 .forks(1)
                 .build();
         new Runner(opt).run();
+    }
+
+    @Benchmark
+    public void run() {
+        result = words.stream()
+                      .map(String::toLowerCase)
+                      .filter(s -> !s.isEmpty() && !s.equals(" "))
+                      .map(Utils::hasher)
+                      .filter(Optional::isPresent)
+                      .map(Optional::get)
+                      .collect(Collectors.groupingBy(h -> h, Collectors.counting()))
+                      .entrySet()
+                      .stream()
+                      .sorted(Map.Entry.comparingByValue((l1, l2) -> (int)(l2 - l1)))
+                      .limit(10)
+                      .map(entry -> String.format("%s -> %d", entry.getKey(), entry.getValue()))
+                      .collect(Collectors.joining(System.lineSeparator()));
     }
 
     @Setup
@@ -60,23 +74,7 @@ public class TopTen {
                 + "be used to interact with automated systems for example to order products or services from e-commerce websites or to participate in online contests Advertisers"
                 + " and service providers use direct text marketing to send messages to mobile users about promotions payment due dates and other notifications instead of using "
                 + "postal mail email or voicemail";
-        words = Arrays.stream(s.split("")).collect(Collectors.toList());
+        words = Arrays.stream(s.split(" ")).collect(Collectors.toList());
     }
-
-    @Benchmark
-    public void run() {
-        result = words.parallelStream()
-                      .filter(Utils::isBlank)
-                      .map(String::toLowerCase)
-                      .map(s -> s.charAt(0))
-                      .map(c -> (int)c)
-                      .map(Math::sqrt)
-                      .collect(Collectors.groupingBy(h -> h, Collectors.counting()))
-                      .entrySet().stream()
-                      .sorted(Map.Entry.comparingByValue((l1, l2) -> (int)(l2 - l1)))
-                      .limit(10)
-                      .map(entry -> String.format("%s -> %d", entry.getKey(), entry.getValue()))
-                      .collect(Collectors.joining(System.lineSeparator()));
-    }
-
+    public TopTen() {}
 }
