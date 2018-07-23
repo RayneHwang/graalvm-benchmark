@@ -5,3 +5,4 @@ target/
 dependency-reduced-pom.xml
 /native-netty/native-demo-1.0-SNAPSHOT
 *.bc
+native-netty-1.0-SNAPSHOT
