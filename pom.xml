@@ -13,7 +13,7 @@
         <module>native-demo</module>
         <module>native-dispatch</module>
         <module>native-polyglot</module>
-        <module>native-demo</module>
+        <module>native-netty</module>
     </modules>
 
 
