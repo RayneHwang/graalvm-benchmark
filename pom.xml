@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>top-ten</module>
+        <module>benchmark</module>
         <module>native-demo</module>
         <module>native-dispatch</module>
         <module>native-polyglot</module>

@@ -30,4 +30,8 @@ public class Utils {
         } catch (NoSuchAlgorithmException ignore) {}
         return Optional.empty();
     }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.isEmpty() || " ".equals(s);
+    }
 }

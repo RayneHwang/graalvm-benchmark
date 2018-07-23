@@ -3,21 +3,18 @@ package rocks.huanglei;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -63,17 +60,17 @@ public class TopTen {
                 + "be used to interact with automated systems for example to order products or services from e-commerce websites or to participate in online contests Advertisers"
                 + " and service providers use direct text marketing to send messages to mobile users about promotions payment due dates and other notifications instead of using "
                 + "postal mail email or voicemail";
-        words = Arrays.stream(s.split(" ")).collect(Collectors.toList());
+        words = Arrays.stream(s.split("")).collect(Collectors.toList());
     }
 
     @Benchmark
     public void run() {
         result = words.parallelStream()
+                      .filter(Utils::isBlank)
                       .map(String::toLowerCase)
-                      .filter(s -> !s.isEmpty() && !s.equals(" "))
-                      .map(Utils::hasher)
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
+                      .map(s -> s.charAt(0))
+                      .map(c -> (int)c)
+                      .map(Math::sqrt)
                       .collect(Collectors.groupingBy(h -> h, Collectors.counting()))
                       .entrySet().stream()
                       .sorted(Map.Entry.comparingByValue((l1, l2) -> (int)(l2 - l1)))
